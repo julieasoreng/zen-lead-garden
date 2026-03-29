@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Zen Lead Tracker</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:system-ui,-apple-system,sans-serif;background:#f0f7f0;display:flex;justify-content:center;align-items:flex-start;min-height:100vh;padding:20px;}
+    .root{width:100%;max-width:480px;display:flex;flex-direction:column;height:700px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.13);}
+    .landscape{flex-shrink:0;position:relative;overflow:hidden;height:260px;transition:height 1s cubic-bezier(.34,1.4,.64,1);}
+    .sky{position:absolute;inset:0;background:#c8e8f8;}
+    .cloud{position:absolute;animation:drift linear infinite;}
+    @keyframes drift{from{transform:translateX(-220px);}to{transform:translateX(110%);}}
+    .grass{position:absolute;bottom:0;left:0;right:0;background:#8dc96e;border-radius:55% 55% 0 0/28px 28px 0 0;transition:height 1s ease;}
+    .tree{position:absolute;bottom:0;transform-origin:bottom center;animation:sway ease-in-out infinite;}
+    @keyframes sway{0%,100%{transform:rotate(-2.5deg);}50%{transform:rotate(2.5deg);}}
+    .world-el{position:absolute;opacity:0;transition:opacity 1.2s ease;}
+    .world-el.visible{opacity:1;}
+    .goal-bar-wrap{position:absolute;bottom:92px;left:50%;transform:translateX(-50%);width:180px;z-index:10;text-align:center;}
+    .goal-lbl{font-size:10px;color:#2d5a3d;font-weight:500;letter-spacing:.05em;margin-bottom:3px;}
+    .goal-track{height:8px;background:rgba(255,255,255,.45);border-radius:20px;overflow:hidden;border:1px solid rgba(100,180,100,.35);}
+    .goal-fill{height:100%;background:#5cb85c;border-radius:20px;transition:width 1s cubic-bezier(.34,1.4,.64,1);}
+    .goal-kr{font-size:11px;color:#2d5a3d;font-weight:500;margin-top:3px;}
+    .week-stars{position:absolute;top:12px;right:14px;display:flex;gap:3px;z-index:10;}
+    .panel{flex:1;overflow-y:auto;background:#f7faf4;border-top:2px solid #b8dfa0;padding:14px;}
+    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .panel-title{font-size:12px;font-weight:500;color:#4a7c59;letter-spacing:.07em;text-transform:uppercase;}
+    .week-hint{font-size:11px;color:#7aaa80;}
+    .tabs{display:flex;gap:6px;margin-bottom:12px;}
+    .tab{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #c4e0b4;background:white;color:#557a62;cursor:pointer;font-weight:500;}
+    .tab.active{background:#7ec46e;color:white;border-color:#7ec46e;}
+    .lead-card{background:white;border-radius:14px;border:1.5px solid #d4eecc;padding:12px 14px;margin-bottom:10px;}
+    .lead-card.contacted{opacity:.45;}
+    .lead-top{display:flex;align-items:flex-start;gap:10px;}
+    .cb{width:22px;height:22px;border-radius:50%;border:2px solid #7ec46e;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+    .lead-card.contacted .cb{background:#7ec46e;}
+    .cbx{display:none;}
+    .lead-card.contacted .cbx{display:block;}
+    .lead-body{flex:1;min-width:0;}
+    .lead-name{font-size:14px;font-weight:500;color:#2d5a3d;}
+    .lead-type{font-size:11px;color:#7aaa80;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+    .lead-contact{font-size:12px;color:#557a62;line-height:1.5;margin-top:2px;}
+    .lead-link{font-size:12px;color:#4a90c4;text-decoration:none;}
+    .lead-link:hover{text-decoration:underline;}
+    .no-site{font-size:11px;color:#c0856a;}
+    .score-pill{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;}
+    .score-circle{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;border:2.5px solid;}
+    .score-lbl{font-size:10px;color:#888;}
+    .priority-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;margin-top:4px;}
+    .expand-btn{font-size:11px;color:#7ec46e;cursor:pointer;margin-top:8px;background:none;border:none;padding:0;}
+    .analysis-block{margin-top:10px;border-top:1px solid #d4eecc;padding-top:10px;}
+    .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+    .score-row{background:#f7faf4;border-radius:10px;padding:7px 10px;}
+    .score-row-lbl{font-size:10px;color:#7aaa80;text-transform:uppercase;letter-spacing:.04em;margin-bottom:3px;}
+    .score-row-val{font-size:13px;font-weight:500;color:#2d5a3d;}
+    .dot-row{display:flex;gap:3px;margin-top:3px;}
+    .dot{width:8px;height:8px;border-radius:50%;background:#e0e0e0;}
+    .dot.on{background:#7ec46e;}
+    .analysis-text{font-size:12px;color:#4a7c59;line-height:1.6;}
+    .deal-section{margin-top:8px;}
+    .deal-logged-tag{font-size:12px;color:#2d6e2d;font-weight:500;background:#eaf5e4;padding:5px 10px;border-radius:8px;display:inline-block;}
+    .deal-input-row{display:flex;gap:6px;margin-top:6px;align-items:center;}
+    .deal-input{font-size:13px;padding:6px 10px;border-radius:8px;border:1.5px solid #c4e0b4;background:white;color:#2d5a3d;outline:none;width:130px;}
+    .deal-input:focus{border-color:#7ec46e;}
+    .deal-confirm-btn{padding:6px 14px;border-radius:8px;background:#7ec46e;color:white;border:none;font-size:12px;font-weight:500;cursor:pointer;}
+    .deal-open-btn{font-size:12px;color:#2d6e2d;background:#eaf5e4;border:1.5px solid #b8dfa0;border-radius:8px;padding:5px 12px;cursor:pointer;margin-top:6px;display:inline-block;}
+    .deal-open-btn:hover{background:#d4f0d4;}
+    .add-row{display:flex;gap:8px;margin-top:4px;}
+    .add-input{flex:1;font-size:13px;padding:8px 12px;border-radius:10px;border:1.5px solid #c4e0b4;background:white;color:#2d5a3d;outline:none;}
+    .add-input:focus{border-color:#7ec46e;}
+    .add-btn{padding:8px 18px;border-radius:10px;background:#7ec46e;color:white;border:none;font-size:15px;cursor:pointer;}
+    .toast{position:absolute;bottom:70px;left:50%;transform:translateX(-50%) translateY(50px);background:white;border:1.5px solid #b8dfa0;border-radius:14px;padding:10px 18px;font-size:12px;color:#2d5a3d;font-weight:500;opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s;white-space:nowrap;z-index:50;pointer-events:none;}
+    .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+    .beach-overlay{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 2s ease;z-index:20;overflow:hidden;}
+    .beach-overlay.visible{opacity:1;pointer-events:auto;}
+    @keyframes flutter{0%,100%{transform:translateY(0) rotate(-4deg);}50%{transform:translateY(-10px) rotate(4deg);}}
+    @keyframes balloonFloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-12px);}}
+    @keyframes sunbob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(-5px);}}
+  </style>
+</head>
+<body>
+<div class="root">
+  <div class="landscape" id="landscape">
+    <div class="sky"></div>
+
+    <div class="cloud" style="top:18px;animation-duration:34s;animation-delay:-6s;">
+      <svg width="110" height="44" viewBox="0 0 110 44"><ellipse cx="55" cy="32" rx="50" ry="15" fill="white" opacity=".88"/><ellipse cx="36" cy="26" rx="28" ry="18" fill="white" opacity=".92"/><ellipse cx="73" cy="24" rx="23" ry="16" fill="white" opacity=".92"/></svg>
+    </div>
+    <div class="cloud" style="top:52px;animation-duration:46s;animation-delay:-22s;">
+      <svg width="80" height="36" viewBox="0 0 80 36"><ellipse cx="40" cy="26" rx="36" ry="12" fill="white" opacity=".82"/><ellipse cx="27" cy="20" rx="20" ry="15" fill="white" opacity=".88"/><ellipse cx="55" cy="18" rx="16" ry="13" fill="white" opacity=".88"/></svg>
+    </div>
+
+    <svg id="sun" style="position:absolute;top:14px;left:50%;animation:sunbob 4s ease-in-out infinite;" width="84" height="84" viewBox="0 0 90 90">
+      <rect x="41" y="2" width="7" height="13" rx="3" fill="#f9d030" transform="rotate(-3 44 8)"/>
+      <rect x="68" y="10" width="7" height="12" rx="3" fill="#f9d030" transform="rotate(38 72 16)"/>
+      <rect x="78" y="38" width="12" height="7" rx="3" fill="#f9d030" transform="rotate(2 84 42)"/>
+      <rect x="67" y="66" width="7" height="12" rx="3" fill="#f9d030" transform="rotate(-35 71 72)"/>
+      <rect x="41" y="74" width="7" height="13" rx="3" fill="#f9d030" transform="rotate(4 44 80)"/>
+      <rect x="13" y="65" width="7" height="12" rx="3" fill="#f9d030" transform="rotate(35 17 71)"/>
+      <rect x="2" y="38" width="12" height="7" rx="3" fill="#f9d030" transform="rotate(-2 8 42)"/>
+      <rect x="13" y="10" width="7" height="12" rx="3" fill="#f9d030" transform="rotate(-38 17 16)"/>
+      <path d="M45 18 C52 17,62 20,67 27 C73 34,74 42,71 50 C68 59,62 65,54 68 C46 71,37 70,30 65 C22 59,18 51,19 42 C20 33,25 23,33 19 C37 17,41 18,45 18Z" fill="none" stroke="#f9d030" stroke-width="4.5" stroke-linecap="round"/>
+      <rect x="33" y="36" width="5" height="10" rx="2.5" fill="#f9d030"/>
+      <rect x="51" y="36" width="5" height="10" rx="2.5" fill="#f9d030"/>
+      <path d="M33 55 Q45 64 57 55" fill="none" stroke="#f9d030" stroke-width="4" stroke-linecap="round"/>
+    </svg>
+
+    <div class="world-el" id="el-birds" style="top:32px;left:22%;">
+      <svg width="48" height="20" viewBox="0 0 48 20"><path d="M2 10 Q8 3 14 8 Q20 3 26 10" fill="none" stroke="#a0c4e0" stroke-width="2" stroke-linecap="round"/><path d="M28 14 Q32 9 36 12 Q40 9 44 14" fill="none" stroke="#a0c4e0" stroke-width="1.6" stroke-linecap="round"/></svg>
+    </div>
+    <div class="world-el" id="el-rainbow" style="top:14px;left:2%;">
+      <svg width="130" height="70" viewBox="0 0 130 70"><path d="M5 65 Q65 -15 125 65" fill="none" stroke="#f4a0c0" stroke-width="6" stroke-linecap="round" opacity=".5"/><path d="M14 65 Q65 -4 116 65" fill="none" stroke="#f9d030" stroke-width="5" stroke-linecap="round" opacity=".45"/><path d="M23 65 Q65 8 107 65" fill="none" stroke="#a8d98a" stroke-width="4" stroke-linecap="round" opacity=".45"/><path d="M32 65 Q65 18 98 65" fill="none" stroke="#80c4e8" stroke-width="4" stroke-linecap="round" opacity=".4"/></svg>
+    </div>
+    <div class="world-el" id="el-flowers" style="bottom:80px;left:50%;transform:translateX(-50%);">
+      <svg width="100" height="26" viewBox="0 0 100 26"><circle cx="12" cy="14" r="6" fill="#f4a0c0" opacity=".9"/><rect x="11" y="17" width="2" height="9" rx="1" fill="#5cb85c"/><circle cx="34" cy="11" r="6" fill="#f9d030" opacity=".9"/><rect x="33" y="14" width="2" height="12" rx="1" fill="#5cb85c"/><circle cx="56" cy="15" r="6" fill="#c4a0f4" opacity=".9"/><rect x="55" y="18" width="2" height="8" rx="1" fill="#5cb85c"/><circle cx="78" cy="12" r="6" fill="#f4a0c0" opacity=".9"/><rect x="77" y="15" width="2" height="11" rx="1" fill="#5cb85c"/></svg>
+    </div>
+    <div class="world-el" id="el-butterfly" style="top:55px;left:38%;animation:flutter 3.5s ease-in-out infinite;">
+      <svg width="24" height="20" viewBox="0 0 24 20"><path d="M12 10 Q4 2 1 6 Q0 12 12 10" fill="#f4a0c0" opacity=".85"/><path d="M12 10 Q20 2 23 6 Q24 12 12 10" fill="#c4a0f4" opacity=".85"/><path d="M12 10 Q5 16 3 13 Q2 18 12 10" fill="#f4a0c0" opacity=".7"/><path d="M12 10 Q19 16 21 13 Q22 18 12 10" fill="#c4a0f4" opacity=".7"/><ellipse cx="12" cy="10" rx="1.5" ry="4" fill="#555"/></svg>
+    </div>
+    <div class="world-el" id="el-cottage" style="bottom:78px;right:13%;">
+      <svg width="52" height="52" viewBox="0 0 52 52"><rect x="8" y="28" width="36" height="24" rx="2" fill="#e8d0b0"/><polygon points="4,28 26,8 48,28" fill="#c07850"/><rect x="18" y="34" width="16" height="18" rx="1" fill="#8b6340"/><rect x="10" y="32" width="10" height="10" rx="1" fill="#b8d8f8"/><rect x="32" y="32" width="10" height="10" rx="1" fill="#b8d8f8"/></svg>
+    </div>
+    <div class="world-el" id="el-balloon" style="top:10px;right:18%;animation:balloonFloat 6s ease-in-out infinite;">
+      <svg width="40" height="60" viewBox="0 0 40 60"><ellipse cx="20" cy="22" rx="16" ry="20" fill="#f4a0c0" stroke="#e080a0" stroke-width="1.5"/><path d="M8 30 Q20 38 32 30" fill="none" stroke="#e080a0" stroke-width="1"/><line x1="14" y1="40" x2="14" y2="44" stroke="#8b6340" stroke-width="1.2"/><line x1="26" y1="40" x2="26" y2="44" stroke="#8b6340" stroke-width="1.2"/><rect x="13" y="44" width="14" height="8" rx="2" fill="#c07850"/></svg>
+    </div>
+
+    <div class="grass" id="grass" style="height:80px;"></div>
+
+    <div class="tree" style="left:6px;animation-duration:3.4s;"><svg width="46" height="104" viewBox="0 0 46 104"><rect x="19" y="66" width="8" height="38" rx="3" fill="#8b6340"/><ellipse cx="23" cy="52" rx="20" ry="26" fill="#5cb85c"/><ellipse cx="23" cy="39" rx="15" ry="21" fill="#4cae4c"/><ellipse cx="23" cy="27" rx="11" ry="15" fill="#3d9a3d"/></svg></div>
+    <div class="tree" style="left:55px;animation-duration:4.1s;animation-delay:-1.5s;"><svg width="28" height="72" viewBox="0 0 28 72"><rect x="11" y="48" width="6" height="24" rx="3" fill="#8b6340"/><ellipse cx="14" cy="38" rx="11" ry="18" fill="#6abf6a"/><ellipse cx="14" cy="27" rx="8" ry="13" fill="#5cb85c"/></svg></div>
+    <div class="tree" style="right:4px;animation-duration:3.8s;animation-delay:-.8s;"><svg width="46" height="104" viewBox="0 0 46 104"><rect x="19" y="66" width="8" height="38" rx="3" fill="#8b6340"/><ellipse cx="23" cy="52" rx="20" ry="26" fill="#6abf6a"/><ellipse cx="23" cy="39" rx="15" ry="21" fill="#5cb85c"/><ellipse cx="23" cy="27" rx="11" ry="15" fill="#4cae4c"/></svg></div>
+    <div class="tree" style="right:57px;animation-duration:4.5s;animation-delay:-3s;"><svg width="28" height="70" viewBox="0 0 28 70"><rect x="11" y="46" width="6" height="24" rx="3" fill="#8b6340"/><ellipse cx="14" cy="36" rx="11" ry="18" fill="#5cb85c"/><ellipse cx="14" cy="25" rx="8" ry="13" fill="#4cae4c"/></svg></div>
+
+    <div class="goal-bar-wrap">
+      <div class="goal-lbl" id="goal-lbl">mål: 18 000 kr / mnd</div>
+      <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%;"></div></div>
+      <div class="goal-kr" id="goal-kr">0 / 18 000 kr tjent</div>
+    </div>
+    <div class="week-stars" id="week-stars"></div>
+
+    <div class="beach-overlay" id="beach">
+      <svg width="100%" height="100%" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">
+        <rect width="400" height="260" fill="#87CEEB"/>
+        <circle cx="320" cy="55" r="30" fill="#FFD700" opacity=".9"/>
+        <rect x="0" y="160" width="400" height="100" fill="#1a9dc8"/>
+        <ellipse cx="200" cy="160" rx="220" ry="18" fill="#2ab5e0"/>
+        <ellipse cx="200" cy="215" rx="220" ry="55" fill="#f0d080"/>
+        <rect x="0" y="215" width="400" height="60" fill="#f0d080"/>
+        <rect x="42" y="130" width="8" height="90" rx="4" fill="#8b6340" transform="rotate(-8 46 200)"/>
+        <ellipse cx="30" cy="128" rx="28" ry="12" fill="#3a8a3a" transform="rotate(-25 30 128)"/>
+        <ellipse cx="50" cy="118" rx="28" ry="12" fill="#4cae4c" transform="rotate(10 50 118)"/>
+        <rect x="352" y="140" width="8" height="80" rx="4" fill="#8b6340" transform="rotate(10 356 210)"/>
+        <ellipse cx="368" cy="138" rx="26" ry="11" fill="#4cae4c" transform="rotate(20 368 138)"/>
+        <line x1="60" y1="180" x2="180" y2="175" stroke="#8b6340" stroke-width="2"/>
+        <path d="M68 182 Q120 200 172 178" fill="#e8c070" stroke="#c8a050" stroke-width="1.5"/>
+        <circle cx="112" cy="182" r="9" fill="#3a2010"/>
+        <circle cx="108" cy="179" r="5" fill="#3a2010"/><circle cx="116" cy="177" r="5" fill="#3a2010"/><circle cx="122" cy="179" r="4" fill="#3a2010"/>
+        <circle cx="113" cy="183" r="7" fill="#c07840"/>
+        <circle cx="111" cy="184" r="1.5" fill="#3a2010"/><circle cx="115" cy="184" r="1.5" fill="#3a2010"/>
+        <path d="M110 187 Q113 190 116 187" fill="none" stroke="#3a2010" stroke-width="1" stroke-linecap="round"/>
+        <rect x="107" y="188" width="14" height="8" rx="2" fill="#f9d030"/>
+        <rect x="104" y="188" width="6" height="10" rx="1" fill="#e8d0b0" opacity=".9"/>
+        <rect x="117" y="188" width="6" height="10" rx="1" fill="#e8d0b0" opacity=".9"/>
+        <rect x="107" y="194" width="7" height="12" rx="2" fill="#e0cba0"/>
+        <rect x="115" y="194" width="7" height="12" rx="2" fill="#e0cba0"/>
+        <ellipse cx="88" cy="212" rx="9" ry="7" fill="#c03020"/>
+        <circle cx="96" cy="208" r="6" fill="#c03020"/><circle cx="102" cy="205" r="5" fill="#c03020"/>
+        <circle cx="104" cy="205" r="1.2" fill="#3a2010"/>
+        <line x1="86" y1="218" x2="84" y2="226" stroke="#c03020" stroke-width="3" stroke-linecap="round"/>
+        <line x1="91" y1="218" x2="90" y2="226" stroke="#c03020" stroke-width="3" stroke-linecap="round"/>
+        <rect x="240" y="175" width="80" height="50" rx="3" fill="#e8d0a0"/>
+        <polygon points="235,175 280,148 325,175" fill="#c07850"/>
+        <rect x="260" y="188" width="20" height="37" rx="2" fill="#8b6340"/>
+        <rect x="244" y="183" width="14" height="14" rx="1" fill="#b8e8f8" opacity=".8"/>
+        <rect x="302" y="183" width="14" height="14" rx="1" fill="#b8e8f8" opacity=".8"/>
+        <circle cx="190" cy="220" r="7" fill="#8b5a30"/>
+        <rect x="184" y="226" width="12" height="6" rx="2" fill="#e07050"/>
+        <circle cx="220" cy="218" r="6" fill="#c07840"/>
+        <rect x="215" y="223" width="10" height="5" rx="2" fill="#4080c0"/>
+        <path d="M0 165 Q50 158 100 165 Q150 172 200 165 Q250 158 300 165 Q350 172 400 165" fill="none" stroke="white" stroke-width="2" opacity=".5"/>
+        <text x="155" y="165" font-size="14" fill="white" opacity=".7">♪</text>
+        <text x="175" y="155" font-size="10" fill="white" opacity=".6">♫</text>
+      </svg>
+      <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.88);border-radius:12px;padding:8px 18px;font-size:13px;font-weight:500;color:#2d5a3d;white-space:nowrap;">du er her. du klarte det.</div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <div class="panel-title">mine leads</div>
+      <div class="week-hint" id="week-hint">kontakt 3 denne uken</div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="setTab('alle',this)">alle</button>
+      <button class="tab" onclick="setTab('aktive',this)">aktive</button>
+      <button class="tab" onclick="setTab('deals',this)">deals logget</button>
+    </div>
+    <div id="lead-list"></div>
+    <div class="add-row">
+      <input class="add-input" id="new-lead" placeholder="Legg til bedrift..."/>
+      <button class="add-btn" onclick="addLead()">+</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const GOAL_KR=18000;
+const CRITERIA=[
+  {key:'betalingsevne',label:'Betalingsevne'},
+  {key:'pain',label:'Problemnivå'},
+  {key:'verdi',label:'Verdiøkning'},
+  {key:'kontakt',label:'Kontaktbarhet'},
+  {key:'beslutning',label:'Beslutningstakt'},
+  {key:'fit',label:'Fit med deg'}
+];
+const MAX=30;
+let currentTab='alle';
+
+const leads=[
+  {name:"Frisør Fryd",type:"frisør",contact:"+47 900 12 345 · fryd@gmail.com",website:null,
+   scores:{betalingsevne:4,pain:5,verdi:5,kontakt:5,beslutning:5,fit:4},
+   analysis:"Ingen nettside, aktiv på Instagram med 2 300 følgere. Eier svarer raskt på DM. Høyt kaos-nivå = lett salg. Estimert prosjektverdi: 8–15k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false},
+  {name:"Barbershop Kings",type:"barbershop",contact:"+47 412 67 890",website:"http://barbershopkings.no",
+   scores:{betalingsevne:4,pain:4,verdi:4,kontakt:3,beslutning:4,fit:3},
+   analysis:"Nettside fra 2013, ikke mobiloptimalisert. Bør kontaktes på telefon. Estimert verdi: 6–10k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false},
+  {name:"Nagelstudio Lykke",type:"neglesalong",contact:"lykke.negler@outlook.com",website:null,
+   scores:{betalingsevne:3,pain:5,verdi:4,kontakt:4,beslutning:5,fit:5},
+   analysis:"Aktiv på Facebook, ingen nettside. Mange anmeldelser. Du vil trives med dem. Estimert verdi: 7–12k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false},
+  {name:"Restaurant Solberg",type:"restaurant",contact:"+47 223 45 678",website:"http://solbergmat.no",
+   scores:{betalingsevne:4,pain:3,verdi:3,kontakt:2,beslutning:3,fit:2},
+   analysis:"Utdatert nettside. Vis konkret eksempel på bedre løsning før pitch. Estimert verdi: 8–14k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false}
+];
+
+function totalScore(l){return Object.values(l.scores).reduce((a,b)=>a+b,0);}
+function totalKr(){return leads.reduce((s,l)=>s+l.dealKr,0);}
+function totalContacted(){return leads.filter(l=>l.contacted).length;}
+function totalDeals(){return leads.filter(l=>l.dealKr>0).length;}
+
+function priorityInfo(t){
+  if(t>=24)return{label:'prioriter hardt',bg:'#d4f0d4',color:'#2d6e2d'};
+  if(t>=18)return{label:'bra lead',bg:'#fdf0c0',color:'#7a6000'};
+  return{label:'lav prioritet',bg:'#f0e0e0',color:'#8a3a3a'};
+}
+function circleStyle(t){
+  if(t>=24)return{border:'#5cb85c',color:'#2d6e2d',bg:'#eafaea'};
+  if(t>=18)return{border:'#e0b040',color:'#7a6000',bg:'#fdf8e0'};
+  return{border:'#d07070',color:'#8a3a3a',bg:'#fdf0f0'};
+}
+function dots(val){
+  let h='<div class="dot-row">';
+  for(let i=1;i<=5;i++)h+=`<div class="dot${i<=val?' on':''}"></div>`;
+  return h+'</div>';
+}
+
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  if(toastTimer)clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+const worldMs=[
+  {contacts:1,msg:"Første kontakt sendt – verden merker det."},
+  {contacts:3,msg:"3 kontakter ute. Regnbuen dukker opp."},
+  {contacts:5,msg:"5 kontakter! Blomstene kommer frem."},
+  {contacts:7,msg:"7 kontakter – sommerfuglen er fri."},
+  {contacts:10,msg:"10 kontakter. Hytta dukker opp i horisonten."},
+];
+const dealMs=[
+  {deals:1,msg:"DEAL LANDET! Ballongen stiger. Du er entrepreneur."},
+  {deals:2,msg:"2 deals! Du har et system som funker."},
+  {deals:3,msg:"3 deals – du er halvveis til Thailand."},
+];
+let prevC=0,prevD=0;
+
+function updateWorld(){
+  const contacted=totalContacted(),deals=totalDeals(),kr=totalKr();
+  const pct=Math.min((kr/GOAL_KR)*100,100);
+  document.getElementById('goal-fill').style.width=pct+'%';
+  document.getElementById('goal-kr').textContent=kr.toLocaleString('nb-NO')+' / '+GOAL_KR.toLocaleString('nb-NO')+' kr tjent';
+  if(pct>=100){document.getElementById('beach').classList.add('visible');document.getElementById('goal-lbl').textContent='mål nådd – velkommen til Thailand!';}
+  document.getElementById('landscape').style.height=Math.min(240+contacted*12+deals*25,430)+'px';
+  document.getElementById('grass').style.height=Math.min(80+contacted*3+deals*8,130)+'px';
+  const show=id=>{const e=document.getElementById(id);if(e)e.classList.add('visible');};
+  if(contacted>=1)show('el-birds');if(contacted>=3)show('el-rainbow');
+  if(contacted>=5)show('el-flowers');if(contacted>=7)show('el-butterfly');
+  if(contacted>=10)show('el-cottage');if(deals>=1)show('el-balloon');
+  if(contacted>prevC){const m=worldMs.find(x=>x.contacts===contacted);if(m)showToast(m.msg);}
+  if(deals>prevD){const m=dealMs.find(x=>x.deals===deals);if(m)showToast(m.msg);}
+  prevC=contacted;prevD=deals;
+  let stars=0;
+  if(contacted>=1)stars=1;if(contacted>=3)stars=2;if(contacted>=5)stars=3;
+  if(deals>=1)stars=Math.max(stars,4);if(deals>=2)stars=5;
+  const wrap=document.getElementById('week-stars');wrap.innerHTML='';
+  for(let i=1;i<=5;i++){
+    const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.setAttribute('width','16');svg.setAttribute('height','16');svg.setAttribute('viewBox','0 0 14 14');
+    const path=document.createElementNS('http://www.w3.org/2000/svg','path');
+    path.setAttribute('d','M7 1l1.5 3.2 3.5.5-2.5 2.4.6 3.5L7 9l-3.1 1.6.6-3.5L2 4.7l3.5-.5z');
+    path.setAttribute('fill',i<=stars?'#f9d030':'rgba(255,255,255,0.35)');
+    svg.appendChild(path);wrap.appendChild(svg);
+  }
+  const targets=[3,5,8,12,20];
+  const next=targets.find(t=>t>contacted)||20;
+  document.getElementById('week-hint').textContent='mål: '+next+' kontakter totalt';
+}
+
+function setTab(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');render();
+}
+
+function confirmDeal(i){
+  const input=document.getElementById('deal-input-'+i);
+  const num=Math.round(parseFloat(input.value));
+  if(!isNaN(num)&&num>0){leads[i].dealKr=num;leads[i].contacted=true;leads[i].dealOpen=false;render();}
+  else{input.style.borderColor='#d07070';setTimeout(()=>input.style.borderColor='',1200);}
+}
+function openDealInput(i){leads[i].dealOpen=true;render();setTimeout(()=>{const inp=document.getElementById('deal-input-'+i);if(inp)inp.focus();},50);}
+
+function render(){
+  const sorted=[...leads].sort((a,b)=>totalScore(b)-totalScore(a));
+  const filtered=sorted.filter(l=>{
+    if(currentTab==='aktive')return !l.contacted&&!l.dealKr;
+    if(currentTab==='deals')return l.dealKr>0;
+    return true;
+  });
+  const list=document.getElementById('lead-list');list.innerHTML='';
+  filtered.forEach(lead=>{
+    const i=leads.indexOf(lead),t=totalScore(lead),p=priorityInfo(t),c=circleStyle(t);
+    const card=document.createElement('div');
+    card.className='lead-card'+(lead.contacted?' contacted':'');
+    const webHTML=lead.website?`<a class="lead-link" href="${lead.website}" target="_blank">${lead.website.replace('http://','')}</a>`:`<span class="no-site">ingen nettside</span>`;
+    let dealHTML='';
+    if(lead.dealKr>0)dealHTML=`<div class="deal-section"><span class="deal-logged-tag">deal landet: ${lead.dealKr.toLocaleString('nb-NO')} kr</span></div>`;
+    else if(lead.dealOpen)dealHTML=`<div class="deal-section"><div class="deal-input-row"><input class="deal-input" id="deal-input-${i}" type="number" placeholder="f.eks. 10000" min="1"/><button class="deal-confirm-btn" onclick="confirmDeal(${i})">logg</button></div></div>`;
+    else dealHTML=`<div class="deal-section"><button class="deal-open-btn" onclick="openDealInput(${i})">logg deal som landet</button></div>`;
+    const grid=CRITERIA.map(cr=>`<div class="score-row"><div class="score-row-lbl">${cr.label}</div><div class="score-row-val">${lead.scores[cr.key]}/5</div>${dots(lead.scores[cr.key])}</div>`).join('');
+    card.innerHTML=`
+      <div class="lead-top">
+        <div class="cb" onclick="toggleContacted(${i})"><svg class="cbx" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
+        <div class="lead-body">
+          <div class="lead-type">${lead.type}</div>
+          <div class="lead-name">${lead.name}</div>
+          <div class="lead-contact">${lead.contact}</div>
+          <div style="margin-top:2px;">${webHTML}</div>
+        </div>
+        <div class="score-pill">
+          <div class="score-circle" style="border-color:${c.border};color:${c.color};background:${c.bg};">${t}</div>
+          <div class="score-lbl">av ${MAX}</div>
+          <div class="priority-tag" style="background:${p.bg};color:${p.color};">${p.label}</div>
+        </div>
+      </div>
+      ${dealHTML}
+      <button class="expand-btn" onclick="toggleOpen(${i})">${lead.open?'▲ skjul analyse':'▼ vis analyse'}</button>
+      ${lead.open?`<div class="analysis-block"><div class="score-grid">${grid}</div><div class="analysis-text">${lead.analysis}</div></div>`:''}`;
+    list.appendChild(card);
+  });
+  updateWorld();
+}
+
+function toggleContacted(i){leads[i].contacted=!leads[i].contacted;render();}
+function toggleOpen(i){leads[i].open=!leads[i].open;render();}
+function addLead(){
+  const input=document.getElementById('new-lead'),name=input.value.trim();
+  if(!name)return;
+  leads.push({name,type:'bedrift',contact:'(legg til kontaktinfo)',website:null,
+    scores:{betalingsevne:3,pain:3,verdi:3,kontakt:3,beslutning:3,fit:3},
+    analysis:'Analyser og legg til notater her.',contacted:false,dealKr:0,dealOpen:false,open:false});
+  input.value='';render();
+}
+render();
+</script>
+</body>
+</html>
