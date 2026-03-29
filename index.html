@@ -24,14 +24,22 @@
     .goal-kr{font-size:11px;color:#2d5a3d;font-weight:500;margin-top:3px;}
     .week-stars{position:absolute;top:12px;right:14px;display:flex;gap:3px;z-index:10;}
     .panel{flex:1;overflow-y:auto;background:#f7faf4;border-top:2px solid #b8dfa0;padding:14px;}
-    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+    .panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
     .panel-title{font-size:12px;font-weight:500;color:#4a7c59;letter-spacing:.07em;text-transform:uppercase;}
     .week-hint{font-size:11px;color:#7aaa80;}
+    .search-row{display:flex;gap:6px;margin-bottom:10px;}
+    .search-input{flex:1;font-size:13px;padding:8px 12px;border-radius:10px;border:1.5px solid #c4e0b4;background:white;color:#2d5a3d;outline:none;}
+    .search-input:focus{border-color:#7ec46e;}
+    .search-btn{padding:8px 14px;border-radius:10px;background:#7ec46e;color:white;border:none;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;}
+    .search-btn:hover{background:#5ca84e;}
+    .search-btn:disabled{background:#b8dfa0;cursor:not-allowed;}
+    .search-status{font-size:11px;color:#7aaa80;margin-bottom:8px;min-height:16px;}
     .tabs{display:flex;gap:6px;margin-bottom:12px;}
     .tab{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid #c4e0b4;background:white;color:#557a62;cursor:pointer;font-weight:500;}
     .tab.active{background:#7ec46e;color:white;border-color:#7ec46e;}
     .lead-card{background:white;border-radius:14px;border:1.5px solid #d4eecc;padding:12px 14px;margin-bottom:10px;}
     .lead-card.contacted{opacity:.45;}
+    .lead-card.new-result{border-color:#a8d8f8;background:#f0f8ff;}
     .lead-top{display:flex;align-items:flex-start;gap:10px;}
     .cb{width:22px;height:22px;border-radius:50%;border:2px solid #7ec46e;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;cursor:pointer;}
     .lead-card.contacted .cb{background:#7ec46e;}
@@ -43,11 +51,14 @@
     .lead-contact{font-size:12px;color:#557a62;line-height:1.5;margin-top:2px;}
     .lead-link{font-size:12px;color:#4a90c4;text-decoration:none;}
     .lead-link:hover{text-decoration:underline;}
-    .no-site{font-size:11px;color:#c0856a;}
+    .no-site{font-size:11px;color:#c0856a;font-weight:500;}
     .score-pill{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:2px;}
     .score-circle{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:500;border:2.5px solid;}
     .score-lbl{font-size:10px;color:#888;}
     .priority-tag{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;margin-top:4px;}
+    .add-to-leads-btn{font-size:11px;color:#185FA5;background:#e6f1fb;border:1px solid #b5d4f4;border-radius:8px;padding:4px 10px;cursor:pointer;margin-top:6px;display:inline-block;}
+    .add-to-leads-btn:hover{background:#b5d4f4;}
+    .added-tag{font-size:11px;color:#2d6e2d;font-weight:500;margin-top:6px;display:inline-block;}
     .expand-btn{font-size:11px;color:#7ec46e;cursor:pointer;margin-top:8px;background:none;border:none;padding:0;}
     .analysis-block{margin-top:10px;border-top:1px solid #d4eecc;padding-top:10px;}
     .score-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
@@ -70,6 +81,7 @@
     .add-input{flex:1;font-size:13px;padding:8px 12px;border-radius:10px;border:1.5px solid #c4e0b4;background:white;color:#2d5a3d;outline:none;}
     .add-input:focus{border-color:#7ec46e;}
     .add-btn{padding:8px 18px;border-radius:10px;background:#7ec46e;color:white;border:none;font-size:15px;cursor:pointer;}
+    .section-divider{font-size:11px;color:#7aaa80;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;}
     .toast{position:absolute;bottom:70px;left:50%;transform:translateX(-50%) translateY(50px);background:white;border:1.5px solid #b8dfa0;border-radius:14px;padding:10px 18px;font-size:12px;color:#2d5a3d;font-weight:500;opacity:0;transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s;white-space:nowrap;z-index:50;pointer-events:none;}
     .toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
     .beach-overlay{position:absolute;inset:0;opacity:0;pointer-events:none;transition:opacity 2s ease;z-index:20;overflow:hidden;}
@@ -83,15 +95,13 @@
 <div class="root">
   <div class="landscape" id="landscape">
     <div class="sky"></div>
-
     <div class="cloud" style="top:18px;animation-duration:34s;animation-delay:-6s;">
       <svg width="110" height="44" viewBox="0 0 110 44"><ellipse cx="55" cy="32" rx="50" ry="15" fill="white" opacity=".88"/><ellipse cx="36" cy="26" rx="28" ry="18" fill="white" opacity=".92"/><ellipse cx="73" cy="24" rx="23" ry="16" fill="white" opacity=".92"/></svg>
     </div>
     <div class="cloud" style="top:52px;animation-duration:46s;animation-delay:-22s;">
       <svg width="80" height="36" viewBox="0 0 80 36"><ellipse cx="40" cy="26" rx="36" ry="12" fill="white" opacity=".82"/><ellipse cx="27" cy="20" rx="20" ry="15" fill="white" opacity=".88"/><ellipse cx="55" cy="18" rx="16" ry="13" fill="white" opacity=".88"/></svg>
     </div>
-
-    <svg id="sun" style="position:absolute;top:14px;left:50%;animation:sunbob 4s ease-in-out infinite;" width="84" height="84" viewBox="0 0 90 90">
+    <svg style="position:absolute;top:14px;left:50%;animation:sunbob 4s ease-in-out infinite;" width="84" height="84" viewBox="0 0 90 90">
       <rect x="41" y="2" width="7" height="13" rx="3" fill="#f9d030" transform="rotate(-3 44 8)"/>
       <rect x="68" y="10" width="7" height="12" rx="3" fill="#f9d030" transform="rotate(38 72 16)"/>
       <rect x="78" y="38" width="12" height="7" rx="3" fill="#f9d030" transform="rotate(2 84 42)"/>
@@ -105,7 +115,6 @@
       <rect x="51" y="36" width="5" height="10" rx="2.5" fill="#f9d030"/>
       <path d="M33 55 Q45 64 57 55" fill="none" stroke="#f9d030" stroke-width="4" stroke-linecap="round"/>
     </svg>
-
     <div class="world-el" id="el-birds" style="top:32px;left:22%;">
       <svg width="48" height="20" viewBox="0 0 48 20"><path d="M2 10 Q8 3 14 8 Q20 3 26 10" fill="none" stroke="#a0c4e0" stroke-width="2" stroke-linecap="round"/><path d="M28 14 Q32 9 36 12 Q40 9 44 14" fill="none" stroke="#a0c4e0" stroke-width="1.6" stroke-linecap="round"/></svg>
     </div>
@@ -124,21 +133,17 @@
     <div class="world-el" id="el-balloon" style="top:10px;right:18%;animation:balloonFloat 6s ease-in-out infinite;">
       <svg width="40" height="60" viewBox="0 0 40 60"><ellipse cx="20" cy="22" rx="16" ry="20" fill="#f4a0c0" stroke="#e080a0" stroke-width="1.5"/><path d="M8 30 Q20 38 32 30" fill="none" stroke="#e080a0" stroke-width="1"/><line x1="14" y1="40" x2="14" y2="44" stroke="#8b6340" stroke-width="1.2"/><line x1="26" y1="40" x2="26" y2="44" stroke="#8b6340" stroke-width="1.2"/><rect x="13" y="44" width="14" height="8" rx="2" fill="#c07850"/></svg>
     </div>
-
     <div class="grass" id="grass" style="height:80px;"></div>
-
     <div class="tree" style="left:6px;animation-duration:3.4s;"><svg width="46" height="104" viewBox="0 0 46 104"><rect x="19" y="66" width="8" height="38" rx="3" fill="#8b6340"/><ellipse cx="23" cy="52" rx="20" ry="26" fill="#5cb85c"/><ellipse cx="23" cy="39" rx="15" ry="21" fill="#4cae4c"/><ellipse cx="23" cy="27" rx="11" ry="15" fill="#3d9a3d"/></svg></div>
     <div class="tree" style="left:55px;animation-duration:4.1s;animation-delay:-1.5s;"><svg width="28" height="72" viewBox="0 0 28 72"><rect x="11" y="48" width="6" height="24" rx="3" fill="#8b6340"/><ellipse cx="14" cy="38" rx="11" ry="18" fill="#6abf6a"/><ellipse cx="14" cy="27" rx="8" ry="13" fill="#5cb85c"/></svg></div>
     <div class="tree" style="right:4px;animation-duration:3.8s;animation-delay:-.8s;"><svg width="46" height="104" viewBox="0 0 46 104"><rect x="19" y="66" width="8" height="38" rx="3" fill="#8b6340"/><ellipse cx="23" cy="52" rx="20" ry="26" fill="#6abf6a"/><ellipse cx="23" cy="39" rx="15" ry="21" fill="#5cb85c"/><ellipse cx="23" cy="27" rx="11" ry="15" fill="#4cae4c"/></svg></div>
     <div class="tree" style="right:57px;animation-duration:4.5s;animation-delay:-3s;"><svg width="28" height="70" viewBox="0 0 28 70"><rect x="11" y="46" width="6" height="24" rx="3" fill="#8b6340"/><ellipse cx="14" cy="36" rx="11" ry="18" fill="#5cb85c"/><ellipse cx="14" cy="25" rx="8" ry="13" fill="#4cae4c"/></svg></div>
-
     <div class="goal-bar-wrap">
       <div class="goal-lbl" id="goal-lbl">mål: 18 000 kr / mnd</div>
       <div class="goal-track"><div class="goal-fill" id="goal-fill" style="width:0%;"></div></div>
       <div class="goal-kr" id="goal-kr">0 / 18 000 kr tjent</div>
     </div>
     <div class="week-stars" id="week-stars"></div>
-
     <div class="beach-overlay" id="beach">
       <svg width="100%" height="100%" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice">
         <rect width="400" height="260" fill="#87CEEB"/>
@@ -174,17 +179,12 @@
         <rect x="260" y="188" width="20" height="37" rx="2" fill="#8b6340"/>
         <rect x="244" y="183" width="14" height="14" rx="1" fill="#b8e8f8" opacity=".8"/>
         <rect x="302" y="183" width="14" height="14" rx="1" fill="#b8e8f8" opacity=".8"/>
-        <circle cx="190" cy="220" r="7" fill="#8b5a30"/>
-        <rect x="184" y="226" width="12" height="6" rx="2" fill="#e07050"/>
-        <circle cx="220" cy="218" r="6" fill="#c07840"/>
-        <rect x="215" y="223" width="10" height="5" rx="2" fill="#4080c0"/>
         <path d="M0 165 Q50 158 100 165 Q150 172 200 165 Q250 158 300 165 Q350 172 400 165" fill="none" stroke="white" stroke-width="2" opacity=".5"/>
         <text x="155" y="165" font-size="14" fill="white" opacity=".7">♪</text>
         <text x="175" y="155" font-size="10" fill="white" opacity=".6">♫</text>
       </svg>
       <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.88);border-radius:12px;padding:8px 18px;font-size:13px;font-weight:500;color:#2d5a3d;white-space:nowrap;">du er her. du klarte det.</div>
     </div>
-
     <div class="toast" id="toast"></div>
   </div>
 
@@ -193,14 +193,23 @@
       <div class="panel-title">mine leads</div>
       <div class="week-hint" id="week-hint">kontakt 3 denne uken</div>
     </div>
+
+    <div class="search-row">
+      <input class="search-input" id="search-input" placeholder="frisør Oslo, barbershop Bergen..." />
+      <button class="search-btn" id="search-btn" onclick="searchPlaces()">søk</button>
+    </div>
+    <div class="search-status" id="search-status"></div>
+
     <div class="tabs">
       <button class="tab active" onclick="setTab('alle',this)">alle</button>
       <button class="tab" onclick="setTab('aktive',this)">aktive</button>
       <button class="tab" onclick="setTab('deals',this)">deals logget</button>
+      <button class="tab" onclick="setTab('resultater',this)">søkeresultater</button>
     </div>
+
     <div id="lead-list"></div>
     <div class="add-row">
-      <input class="add-input" id="new-lead" placeholder="Legg til bedrift..."/>
+      <input class="add-input" id="new-lead" placeholder="Legg til bedrift manuelt..."/>
       <button class="add-btn" onclick="addLead()">+</button>
     </div>
   </div>
@@ -218,25 +227,85 @@ const CRITERIA=[
 ];
 const MAX=30;
 let currentTab='alle';
+let searchResults=[];
 
 const leads=[
-  {name:"Frisør Fryd",type:"frisør",contact:"+47 900 12 345 · fryd@gmail.com",website:null,
+  {name:"Frisør Fryd",type:"frisør",contact:"+47 900 12 345 · fryd@gmail.com",website:null,address:"Oslo",
    scores:{betalingsevne:4,pain:5,verdi:5,kontakt:5,beslutning:5,fit:4},
-   analysis:"Ingen nettside, aktiv på Instagram med 2 300 følgere. Eier svarer raskt på DM. Høyt kaos-nivå = lett salg. Estimert prosjektverdi: 8–15k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false},
-  {name:"Barbershop Kings",type:"barbershop",contact:"+47 412 67 890",website:"http://barbershopkings.no",
+   analysis:"Ingen nettside, aktiv på Instagram med 2 300 følgere. Eier svarer raskt på DM. Estimert verdi: 8–15k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false},
+  {name:"Barbershop Kings",type:"barbershop",contact:"+47 412 67 890",website:"http://barbershopkings.no",address:"Oslo",
    scores:{betalingsevne:4,pain:4,verdi:4,kontakt:3,beslutning:4,fit:3},
-   analysis:"Nettside fra 2013, ikke mobiloptimalisert. Bør kontaktes på telefon. Estimert verdi: 6–10k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false},
-  {name:"Nagelstudio Lykke",type:"neglesalong",contact:"lykke.negler@outlook.com",website:null,
+   analysis:"Nettside fra 2013, ikke mobiloptimalisert. Estimert verdi: 6–10k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false},
+  {name:"Nagelstudio Lykke",type:"neglesalong",contact:"lykke.negler@outlook.com",website:null,address:"Oslo",
    scores:{betalingsevne:3,pain:5,verdi:4,kontakt:4,beslutning:5,fit:5},
-   analysis:"Aktiv på Facebook, ingen nettside. Mange anmeldelser. Du vil trives med dem. Estimert verdi: 7–12k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false},
-  {name:"Restaurant Solberg",type:"restaurant",contact:"+47 223 45 678",website:"http://solbergmat.no",
+   analysis:"Aktiv på Facebook, ingen nettside. Estimert verdi: 7–12k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false},
+  {name:"Restaurant Solberg",type:"restaurant",contact:"+47 223 45 678",website:"http://solbergmat.no",address:"Oslo",
    scores:{betalingsevne:4,pain:3,verdi:3,kontakt:2,beslutning:3,fit:2},
-   analysis:"Utdatert nettside. Vis konkret eksempel på bedre løsning før pitch. Estimert verdi: 8–14k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false}
+   analysis:"Utdatert nettside. Estimert verdi: 8–14k kr.",
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false}
 ];
+
+function guessScores(place){
+  const hasWebsite=!!place.website;
+  const rating=place.rating||3;
+  const reviews=place.user_ratings_total||0;
+  return {
+    betalingsevne: rating>=4.5?4:rating>=4?3:2,
+    pain: hasWebsite?2:5,
+    verdi: hasWebsite?2:4,
+    kontakt: reviews>50?4:reviews>10?3:2,
+    beslutning: 4,
+    fit: 3
+  };
+}
+
+async function searchPlaces(){
+  const query=document.getElementById('search-input').value.trim();
+  if(!query)return;
+  const btn=document.getElementById('search-btn');
+  const status=document.getElementById('search-status');
+  btn.disabled=true;btn.textContent='søker...';
+  status.textContent='Henter bedrifter fra Google...';
+  try{
+    const res=await fetch(`/api/places?query=${encodeURIComponent(query)}`);
+    const data=await res.json();
+    if(data.results&&data.results.length>0){
+      searchResults=data.results.map(place=>({
+        name:place.name,
+        type:query.split(' ')[0],
+        contact:'',
+        website:place.website||null,
+        address:place.formatted_address||'',
+        scores:guessScores(place),
+        analysis:`Google-rating: ${place.rating||'ukjent'}/5 (${place.user_ratings_total||0} anmeldelser). ${place.website?'Har nettside – vurder redesign.':'Ingen nettside funnet – perfekt kandidat.'}`,
+        contacted:false,dealKr:0,dealOpen:false,open:false,isResult:true,added:false,
+        placeId:place.place_id
+      }));
+      status.textContent=`${searchResults.length} bedrifter funnet`;
+      setTab('resultater',document.querySelector('.tab:last-child'));
+    } else {
+      status.textContent='Ingen resultater. Prøv et annet søk.';
+    }
+  } catch(e){
+    status.textContent='Noe gikk galt – sjekk at Netlify er deployet.';
+  }
+  btn.disabled=false;btn.textContent='søk';
+}
+
+document.getElementById('search-input').addEventListener('keydown',e=>{
+  if(e.key==='Enter')searchPlaces();
+});
+
+function addResultToLeads(idx){
+  const r={...searchResults[idx],isResult:false,added:false};
+  leads.push(r);
+  searchResults[idx].added=true;
+  render();
+  showToast(r.name+' lagt til i leads!');
+}
 
 function totalScore(l){return Object.values(l.scores).reduce((a,b)=>a+b,0);}
 function totalKr(){return leads.reduce((s,l)=>s+l.dealKr,0);}
@@ -327,57 +396,99 @@ function confirmDeal(i){
 }
 function openDealInput(i){leads[i].dealOpen=true;render();setTimeout(()=>{const inp=document.getElementById('deal-input-'+i);if(inp)inp.focus();},50);}
 
-function render(){
-  const sorted=[...leads].sort((a,b)=>totalScore(b)-totalScore(a));
-  const filtered=sorted.filter(l=>{
-    if(currentTab==='aktive')return !l.contacted&&!l.dealKr;
-    if(currentTab==='deals')return l.dealKr>0;
-    return true;
-  });
-  const list=document.getElementById('lead-list');list.innerHTML='';
-  filtered.forEach(lead=>{
-    const i=leads.indexOf(lead),t=totalScore(lead),p=priorityInfo(t),c=circleStyle(t);
-    const card=document.createElement('div');
-    card.className='lead-card'+(lead.contacted?' contacted':'');
-    const webHTML=lead.website?`<a class="lead-link" href="${lead.website}" target="_blank">${lead.website.replace('http://','')}</a>`:`<span class="no-site">ingen nettside</span>`;
+function renderCard(lead,i,isResult,resultIdx){
+  const t=totalScore(lead),p=priorityInfo(t),c=circleStyle(t);
+  const card=document.createElement('div');
+  card.className='lead-card'+(lead.contacted?' contacted':'')+(isResult?' new-result':'');
+
+  const webHTML=lead.website
+    ?`<a class="lead-link" href="${lead.website}" target="_blank">${lead.website.replace(/https?:\/\//,'').substring(0,35)}</a>`
+    :`<span class="no-site">ingen nettside</span>`;
+
+  const addrHTML=lead.address?`<div style="font-size:11px;color:#999;margin-top:1px;">${lead.address.substring(0,50)}</div>`:'';
+
+  let actionHTML='';
+  if(isResult){
+    actionHTML=lead.added
+      ?`<span class="added-tag">lagt til i leads</span>`
+      :`<button class="add-to-leads-btn" onclick="addResultToLeads(${resultIdx})">+ legg til i leads</button>`;
+  } else {
     let dealHTML='';
     if(lead.dealKr>0)dealHTML=`<div class="deal-section"><span class="deal-logged-tag">deal landet: ${lead.dealKr.toLocaleString('nb-NO')} kr</span></div>`;
     else if(lead.dealOpen)dealHTML=`<div class="deal-section"><div class="deal-input-row"><input class="deal-input" id="deal-input-${i}" type="number" placeholder="f.eks. 10000" min="1"/><button class="deal-confirm-btn" onclick="confirmDeal(${i})">logg</button></div></div>`;
     else dealHTML=`<div class="deal-section"><button class="deal-open-btn" onclick="openDealInput(${i})">logg deal som landet</button></div>`;
-    const grid=CRITERIA.map(cr=>`<div class="score-row"><div class="score-row-lbl">${cr.label}</div><div class="score-row-val">${lead.scores[cr.key]}/5</div>${dots(lead.scores[cr.key])}</div>`).join('');
-    card.innerHTML=`
-      <div class="lead-top">
-        <div class="cb" onclick="toggleContacted(${i})"><svg class="cbx" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>
-        <div class="lead-body">
-          <div class="lead-type">${lead.type}</div>
-          <div class="lead-name">${lead.name}</div>
-          <div class="lead-contact">${lead.contact}</div>
-          <div style="margin-top:2px;">${webHTML}</div>
-        </div>
-        <div class="score-pill">
-          <div class="score-circle" style="border-color:${c.border};color:${c.color};background:${c.bg};">${t}</div>
-          <div class="score-lbl">av ${MAX}</div>
-          <div class="priority-tag" style="background:${p.bg};color:${p.color};">${p.label}</div>
-        </div>
+    actionHTML=dealHTML;
+  }
+
+  const grid=CRITERIA.map(cr=>`<div class="score-row"><div class="score-row-lbl">${cr.label}</div><div class="score-row-val">${lead.scores[cr.key]}/5</div>${dots(lead.scores[cr.key])}</div>`).join('');
+
+  const toggleFn=isResult?'':`onclick="toggleOpen(${i})"`;
+  const openState=lead.open;
+
+  card.innerHTML=`
+    <div class="lead-top">
+      ${!isResult?`<div class="cb" onclick="toggleContacted(${i})"><svg class="cbx" width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg></div>`:''}
+      <div class="lead-body">
+        <div class="lead-type">${lead.type}</div>
+        <div class="lead-name">${lead.name}</div>
+        ${addrHTML}
+        <div style="margin-top:2px;">${webHTML}</div>
+        ${lead.contact?`<div class="lead-contact">${lead.contact}</div>`:''}
       </div>
-      ${dealHTML}
-      <button class="expand-btn" onclick="toggleOpen(${i})">${lead.open?'▲ skjul analyse':'▼ vis analyse'}</button>
-      ${lead.open?`<div class="analysis-block"><div class="score-grid">${grid}</div><div class="analysis-text">${lead.analysis}</div></div>`:''}`;
-    list.appendChild(card);
-  });
+      <div class="score-pill">
+        <div class="score-circle" style="border-color:${c.border};color:${c.color};background:${c.bg};">${t}</div>
+        <div class="score-lbl">av ${MAX}</div>
+        <div class="priority-tag" style="background:${p.bg};color:${p.color};">${p.label}</div>
+      </div>
+    </div>
+    ${actionHTML}
+    <button class="expand-btn" ${toggleFn}>${openState?'▲ skjul analyse':'▼ vis analyse'}</button>
+    ${openState?`<div class="analysis-block"><div class="score-grid">${grid}</div><div class="analysis-text">${lead.analysis}</div></div>`:''}
+  `;
+  return card;
+}
+
+function render(){
+  const list=document.getElementById('lead-list');
+  list.innerHTML='';
+
+  if(currentTab==='resultater'){
+    if(searchResults.length===0){
+      list.innerHTML='<div style="font-size:13px;color:#7aaa80;padding:12px 0;">Søk etter bedrifter ovenfor.</div>';
+    } else {
+      searchResults.forEach((r,idx)=>list.appendChild(renderCard(r,null,true,idx)));
+    }
+  } else {
+    const sorted=[...leads].sort((a,b)=>totalScore(b)-totalScore(a));
+    const filtered=sorted.filter(l=>{
+      if(currentTab==='aktive')return !l.contacted&&!l.dealKr;
+      if(currentTab==='deals')return l.dealKr>0;
+      return true;
+    });
+    if(filtered.length===0){
+      list.innerHTML='<div style="font-size:13px;color:#7aaa80;padding:12px 0;">Ingen leads her ennå.</div>';
+    } else {
+      filtered.forEach(lead=>{
+        const i=leads.indexOf(lead);
+        list.appendChild(renderCard(lead,i,false,null));
+      });
+    }
+  }
   updateWorld();
 }
 
 function toggleContacted(i){leads[i].contacted=!leads[i].contacted;render();}
 function toggleOpen(i){leads[i].open=!leads[i].open;render();}
+
 function addLead(){
   const input=document.getElementById('new-lead'),name=input.value.trim();
   if(!name)return;
-  leads.push({name,type:'bedrift',contact:'(legg til kontaktinfo)',website:null,
+  leads.push({name,type:'bedrift',contact:'',website:null,address:'',
     scores:{betalingsevne:3,pain:3,verdi:3,kontakt:3,beslutning:3,fit:3},
-    analysis:'Analyser og legg til notater her.',contacted:false,dealKr:0,dealOpen:false,open:false});
+    analysis:'Analyser og legg til notater her.',contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false});
   input.value='';render();
 }
+
 render();
 </script>
 </body>
