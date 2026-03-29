@@ -9,7 +9,8 @@ export default async (request, context) => {
     });
   }
 
-  const apiKey = Netlify.env.get("GOOGLE_PLACES_KEY");
+  const apiKey = Deno.env.get("GOOGLE_PLACES_KEY");
+
   const googleUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
 
   const response = await fetch(googleUrl);
