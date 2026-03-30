@@ -1,5 +1,7 @@
+import { env } from "netlify:env";
+
 export default async (request, context) => {
-  const apiKey = Deno.env.get("GOOGLE_PLACES_KEY");
+  const apiKey = env("GOOGLE_PLACES_KEY");
   
   return new Response(JSON.stringify({ 
     keyExists: !!apiKey,
