@@ -316,7 +316,7 @@ function addResultToLeads(idx){
   const r={...searchResults[idx],isResult:false,added:false,nei:false};
   leads.push(r);
   searchResults[idx].added=true;
-  render();
+  saveToStorage();render();
   showToast(r.name+' lagt til i leads!');
 }
 
@@ -404,7 +404,7 @@ function setTab(tab,btn){
 function confirmDeal(i){
   const input=document.getElementById('deal-input-'+i);
   const num=Math.round(parseFloat(input.value));
-  if(!isNaN(num)&&num>0){leads[i].dealKr=num;leads[i].contacted=true;leads[i].dealOpen=false;render();}
+  if(!isNaN(num)&&num>0){leads[i].dealKr=num;leads[i].contacted=true;leads[i].dealOpen=false;saveToStorage();render();}
   else{input.style.borderColor='#d07070';setTimeout(()=>input.style.borderColor='',1200);}
 }
 function openDealInput(i){leads[i].dealOpen=true;render();setTimeout(()=>{const inp=document.getElementById('deal-input-'+i);if(inp)inp.focus();},50);}
@@ -467,6 +467,15 @@ function renderCard(lead,i,isResult,resultIdx){
   return card;
 }
 
+function saveToStorage(){
+  try{localStorage.setItem('zen_leads',JSON.stringify(leads));}catch(e){}
+}
+function loadFromStorage(){
+  try{
+    const saved=localStorage.getItem('zen_leads');
+    if(saved){const parsed=JSON.parse(saved);parsed.forEach(l=>leads.push(l));}
+  }catch(e){}
+}
 function render(){
   const list=document.getElementById('lead-list');
   list.innerHTML='';
@@ -513,10 +522,10 @@ function render(){
 }
 
 function toggleResultOpen(i){searchResults[i].open=!searchResults[i].open;render();}
-function deleteLead(i){leads.splice(i,1);render();}
-function markNei(i){leads[i].nei=!leads[i].nei;leads[i].contacted=true;render();}
-function toggleContacted(i){leads[i].contacted=!leads[i].contacted;render();}
-function toggleOpen(i){leads[i].open=!leads[i].open;render();}
+function deleteLead(i){leads.splice(i,1);saveToStorage();render();}
+function markNei(i){leads[i].nei=!leads[i].nei;leads[i].contacted=true;saveToStorage();render();}
+function toggleContacted(i){leads[i].contacted=!leads[i].contacted;saveToStorage();render();}
+function toggleOpen(i){leads[i].open=!leads[i].open;saveToStorage();render();}
 
 function addLead(){
   const input=document.getElementById('new-lead'),name=input.value.trim();
@@ -524,10 +533,10 @@ function addLead(){
   leads.push({name,type:'bedrift',contact:'',website:null,address:'',
     scores:{betalingsevne:3,pain:3,verdi:3,kontakt:3,beslutning:3,fit:3},
     analysis:'Analyser og legg til notater her.',contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false});
-  input.value='';render();
+  input.value='';saveToStorage();render();
 }
 
-render();
+loadFromStorage();render();;
 </script>
 </body>
 </html>
