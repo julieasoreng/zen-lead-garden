@@ -290,7 +290,7 @@ async function searchPlaces(){
         contact:'',
         website:place.websiteUri||null,
         address:place.formatted_address||'',
-        scores:guessScores(place),
+        scores:guessScores({websiteUri:place.websiteUri,rating:place.rating,userRatingCount:place.userRatingCount,displayName:place.displayName}),
         analysis:`Google-rating: ${place.rating||'ukjent'}/5 (${place.userRatingCount||0} anmeldelser). ${place.websiteUri?'Har nettside – vurder redesign.':'Ingen nettside funnet – perfekt kandidat.'}`,
         contacted:false,dealKr:0,dealOpen:false,open:false,isResult:true,added:false,
         placeId:place.place_id
