@@ -11,9 +11,18 @@ export default async (request, context) => {
 
   const apiKey = Deno.env.get("GOOGLE_PLACES_KEY");
 
-  const googleUrl = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&key=${apiKey}`;
+  const googleUrl = `https://places.googleapis.com/v1/places:searchText`;
 
-  const response = await fetch(googleUrl);
+  const response = await fetch(googleUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Goog-Api-Key": apiKey,
+      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.websiteUri,places.rating,places.userRatingCount,places.id"
+    },
+    body: JSON.stringify({ textQuery: query })
+  });
+
   const data = await response.json();
 
   return new Response(JSON.stringify(data), {
