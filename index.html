@@ -81,6 +81,8 @@
     .deal-confirm-btn{padding:6px 14px;border-radius:8px;background:#7ec46e;color:white;border:none;font-size:12px;font-weight:500;cursor:pointer;}
     .deal-open-btn{font-size:12px;color:#2d6e2d;background:#eaf5e4;border:1.5px solid #b8dfa0;border-radius:8px;padding:5px 12px;cursor:pointer;margin-top:6px;display:inline-block;}
     .deal-open-btn:hover{background:#d4f0d4;}
+.delete-btn{font-size:11px;color:#a03a3a;background:none;border:none;cursor:pointer;padding:0;margin-top:6px;display:inline-block;opacity:0.6;}
+.delete-btn:hover{opacity:1;text-decoration:underline;}
     .add-row{display:flex;gap:8px;margin-top:4px;}
     .add-input{flex:1;font-size:13px;padding:8px 12px;border-radius:10px;border:1.5px solid #c4e0b4;background:white;color:#2d5a3d;outline:none;}
     .add-input:focus{border-color:#7ec46e;}
@@ -482,6 +484,7 @@ function render(){
 }
 
 function toggleResultOpen(i){searchResults[i].open=!searchResults[i].open;render();}
+function deleteLead(i){leads.splice(i,1);render();}
 function toggleContacted(i){leads[i].contacted=!leads[i].contacted;render();}
 function toggleOpen(i){leads[i].open=!leads[i].open;render();}
 
