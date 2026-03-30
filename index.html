@@ -251,7 +251,7 @@ const leads=[
 function guessScores(place){
   const hasWebsite=!!place.website;
   const rating=place.rating||3;
-  const reviews=place.user_ratings_total||0;
+  const reviews=place.userRatingCount||0;
   return {
     betalingsevne: rating>=4.5?4:rating>=4?3:2,
     pain: hasWebsite?2:5,
@@ -272,15 +272,15 @@ async function searchPlaces(){
   try{
     const res=await fetch(`/api/places?query=${encodeURIComponent(query)}`);
     const data=await res.json();
-    if(data.results&&data.results.length>0){
-      searchResults=data.results.map(place=>({
-        name:place.name,
+    if(data.places&&data.places.length>0){
+      searchResults=data.places.map(place=>({
+        name:place.displayName.text,
         type:query.split(' ')[0],
         contact:'',
-        website:place.website||null,
+        website:place.websiteUri||null,
         address:place.formatted_address||'',
         scores:guessScores(place),
-        analysis:`Google-rating: ${place.rating||'ukjent'}/5 (${place.user_ratings_total||0} anmeldelser). ${place.website?'Har nettside – vurder redesign.':'Ingen nettside funnet – perfekt kandidat.'}`,
+        analysis:`Google-rating: ${place.rating||'ukjent'}/5 (${place.userRatingCount||0} anmeldelser). ${place.websiteUri?'Har nettside – vurder redesign.':'Ingen nettside funnet – perfekt kandidat.'}`,
         contacted:false,dealKr:0,dealOpen:false,open:false,isResult:true,added:false,
         placeId:place.place_id
       }));
