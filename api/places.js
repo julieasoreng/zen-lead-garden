@@ -12,7 +12,7 @@ export default async function handler(req, res) {
     headers: {
       "Content-Type": "application/json",
       "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.websiteUri,places.rating,places.userRatingCount,places.id"
+      "X-Goog-FieldMask": "places.displayName,places.formattedAddress,places.websiteUri,places.rating,places.userRatingCount,places.id,places.nationalPhoneNumber,places.internationalPhoneNumber"
     },
     body: JSON.stringify({ textQuery: query })
   });
