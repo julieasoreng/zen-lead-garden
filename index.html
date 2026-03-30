@@ -69,6 +69,10 @@
     .dot{width:8px;height:8px;border-radius:50%;background:#e0e0e0;}
     .dot.on{background:#7ec46e;}
     .analysis-text{font-size:12px;color:#4a7c59;line-height:1.6;}
+.tooltip-wrap{position:relative;display:inline-block;margin-left:4px;cursor:pointer;}
+.tooltip-icon{width:13px;height:13px;border-radius:50%;background:#c4e0b4;color:#2d5a3d;font-size:9px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;}
+.tooltip-box{display:none;position:absolute;left:18px;top:-4px;background:#2d5a3d;color:white;font-size:11px;padding:6px 10px;border-radius:8px;width:180px;line-height:1.5;z-index:100;}
+.tooltip-wrap:hover .tooltip-box{display:block;}
     .deal-section{margin-top:8px;}
     .deal-logged-tag{font-size:12px;color:#2d6e2d;font-weight:500;background:#eaf5e4;padding:5px 10px;border-radius:8px;display:inline-block;}
     .deal-input-row{display:flex;gap:6px;margin-top:6px;align-items:center;}
@@ -218,12 +222,12 @@
 <script>
 const GOAL_KR=18000;
 const CRITERIA=[
-  {key:'betalingsevne',label:'Betalingsevne'},
-  {key:'pain',label:'Problemnivå'},
-  {key:'verdi',label:'Verdiøkning'},
-  {key:'kontakt',label:'Kontaktbarhet'},
-  {key:'beslutning',label:'Beslutningstakt'},
-  {key:'fit',label:'Fit med deg'}
+  {key:'betalingsevne',label:'Betalingsevne',tip:'Har de råd til å betale 10–25k? Se på priser, bilder og antall kunder.'},
+  {key:'pain',label:'Problemnivå',tip:'Booking via DM, ingen nettside = kaos = lett salg. Jo mer kaos, jo bedre.'},
+  {key:'verdi',label:'Verdiøkning',tip:'Kan du faktisk hjelpe dem tjene mer? Flere bookinger, mindre stress?'},
+  {key:'kontakt',label:'Kontaktbarhet',tip:'Aktiv på Instagram, DM åpen, svarer raskt på kommentarer?'},
+  {key:'beslutning',label:'Beslutningstakt',tip:'Solo-eier sier ja samme dag. Stor bedrift = treg prosess.'},
+  {key:'fit',label:'Fit med deg',tip:'Får du energi av å jobbe med dem? Undervurdert – energi = konsistens.'}
 ];
 const MAX=30;
 let currentTab='alle';
@@ -420,10 +424,10 @@ function renderCard(lead,i,isResult,resultIdx){
     actionHTML=dealHTML;
   }
 
-  const grid=CRITERIA.map(cr=>`<div class="score-row"><div class="score-row-lbl">${cr.label}</div><div class="score-row-val">${lead.scores[cr.key]}/5</div>${dots(lead.scores[cr.key])}</div>`).join('');
+  const grid=CRITERIA.map(cr=>`<div class="score-row"><div class="score-row-lbl">${cr.label}<span class="tooltip-wrap"><span class="tooltip-icon">i</span><span class="tooltip-box">${cr.tip}</span></span></div><div class="score-row-val">${lead.scores[cr.key]}/5</div>${dots(lead.scores[cr.key])}</div>`).join('');
 
-  const toggleFn=isResult?'':`onclick="toggleOpen(${i})"`;
-  const openState=lead.open;
+  const toggleFn=isResult?`onclick="toggleResultOpen(${resultIdx})"`:`onclick="toggleOpen(${i})"`;
+  const openState=lead.open||false;
 
   card.innerHTML=`
     <div class="lead-top">
@@ -477,6 +481,7 @@ function render(){
   updateWorld();
 }
 
+function toggleResultOpen(i){searchResults[i].open=!searchResults[i].open;render();}
 function toggleContacted(i){leads[i].contacted=!leads[i].contacted;render();}
 function toggleOpen(i){leads[i].open=!leads[i].open;render();}
 
