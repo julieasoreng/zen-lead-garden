@@ -239,24 +239,7 @@ const MAX=30;
 let currentTab='alle';
 let searchResults=[];
 
-const leads=[
-  {name:"Frisør Fryd",type:"frisør",contact:"+47 900 12 345 · fryd@gmail.com",website:null,address:"Oslo",
-   scores:{betalingsevne:4,pain:5,verdi:5,kontakt:5,beslutning:5,fit:4},
-   analysis:"Ingen nettside, aktiv på Instagram med 2 300 følgere. Eier svarer raskt på DM. Estimert verdi: 8–15k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false},
-  {name:"Barbershop Kings",type:"barbershop",contact:"+47 412 67 890",website:"http://barbershopkings.no",address:"Oslo",
-   scores:{betalingsevne:4,pain:4,verdi:4,kontakt:3,beslutning:4,fit:3},
-   analysis:"Nettside fra 2013, ikke mobiloptimalisert. Estimert verdi: 6–10k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false},
-  {name:"Nagelstudio Lykke",type:"neglesalong",contact:"lykke.negler@outlook.com",website:null,address:"Oslo",
-   scores:{betalingsevne:3,pain:5,verdi:4,kontakt:4,beslutning:5,fit:5},
-   analysis:"Aktiv på Facebook, ingen nettside. Estimert verdi: 7–12k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false},
-  {name:"Restaurant Solberg",type:"restaurant",contact:"+47 223 45 678",website:"http://solbergmat.no",address:"Oslo",
-   scores:{betalingsevne:4,pain:3,verdi:3,kontakt:2,beslutning:3,fit:2},
-   analysis:"Utdatert nettside. Estimert verdi: 8–14k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false}
-];
+const leads=[];
 
 function guessScores(place){
   const website=place.websiteUri||null;
