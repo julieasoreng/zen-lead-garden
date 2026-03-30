@@ -282,7 +282,7 @@ async function searchPlaces(){
         return {
           name:place.displayName.text,
           type:query.split(' ')[0],
-          contact:'',
+          contact:place.nationalPhoneNumber||place.internationalPhoneNumber||'',
           website:w,
           address:place.formattedAddress||'',
           scores:{
@@ -484,7 +484,8 @@ function render(){
     if(searchResults.length===0){
       list.innerHTML='<div style="font-size:13px;color:#7aaa80;padding:12px 0;">Søk etter bedrifter ovenfor.</div>';
     } else {
-      searchResults.filter(r=>!r.nei).forEach((r,idx)=>{
+      const neiNames=new Set(leads.filter(l=>l.nei).map(l=>l.name.toLowerCase()));
+      searchResults.filter(r=>!r.nei&&!neiNames.has(r.name.toLowerCase())).forEach((r,idx)=>{
         const realIdx=searchResults.indexOf(r);
         list.appendChild(renderCard(r,null,true,realIdx));
       });
