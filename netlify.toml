@@ -1,6 +1,3 @@
 [[edge_functions]]
   path = "/api/places"
   function = "places"
-
-[build]
-  environment = ["GOOGLE_PLACES_KEY"]
