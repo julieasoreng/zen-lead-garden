@@ -255,17 +255,22 @@ const leads=[
 ];
 
 function guessScores(place){
-  const hasWebsite=!!place.website;
+  const website=place.websiteUri||null;
+  const hasNoSite=!website;
+  const isInstagram=website&&(website.includes('instagram.com')||website.includes('facebook.com'));
   const rating=place.rating||3;
   const reviews=place.userRatingCount||0;
-  return {
-    betalingsevne: rating>=4.5?4:rating>=4?3:2,
-    pain: hasWebsite?2:5,
-    verdi: hasWebsite?2:4,
-    kontakt: reviews>50?4:reviews>10?3:2,
-    beslutning: 4,
-    fit: 3
-  };
+  const name=(place.displayName&&place.displayName.text||'').toLowerCase();
+
+  const pain=hasNoSite?5:isInstagram?4:2;
+  const verdi=hasNoSite?5:isInstagram?4:2;
+  const betalingsevne=rating>=4.8&&reviews>200?5:rating>=4.5&&reviews>100?4:rating>=4?3:2;
+  const kontakt=reviews>200?4:reviews>50?3:reviews>10?2:1;
+  const beslutning=reviews<50?5:reviews<200?4:3;
+  const frisørTypes=['frisør','hair','barber','negl','nail','beauty','salong','lash','brow','spa'];
+  const fit=frisørTypes.some(t=>name.includes(t))?4:3;
+
+  return {betalingsevne,pain,verdi,kontakt,beslutning,fit};
 }
 
 async function searchPlaces(){
