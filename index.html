@@ -83,6 +83,9 @@
     .deal-open-btn:hover{background:#d4f0d4;}
 .delete-btn{font-size:11px;color:#a03a3a;background:none;border:none;cursor:pointer;padding:0;margin-top:6px;display:inline-block;opacity:0.6;}
 .delete-btn:hover{opacity:1;text-decoration:underline;}
+.nei-btn{font-size:11px;color:#8a3a3a;background:#f9eded;border:1px solid #f0c4c4;border-radius:8px;padding:4px 10px;cursor:pointer;margin-top:6px;display:inline-block;}
+.nei-btn:hover{background:#f0c4c4;}
+.nei-tag{font-size:11px;color:#8a3a3a;font-weight:500;background:#f9eded;padding:4px 10px;border-radius:8px;display:inline-block;margin-top:6px;}
     .add-row{display:flex;gap:8px;margin-top:4px;}
     .add-input{flex:1;font-size:13px;padding:8px 12px;border-radius:10px;border:1.5px solid #c4e0b4;background:white;color:#2d5a3d;outline:none;}
     .add-input:focus{border-color:#7ec46e;}
@@ -211,6 +214,7 @@
       <button class="tab" onclick="setTab('aktive',this)">aktive</button>
       <button class="tab" onclick="setTab('deals',this)">deals logget</button>
       <button class="tab" onclick="setTab('resultater',this)">søkeresultater</button>
+      <button class="tab" onclick="setTab('nei',this)">sa nei</button>
     </div>
 
     <div id="lead-list"></div>
@@ -239,15 +243,15 @@ const leads=[
   {name:"Frisør Fryd",type:"frisør",contact:"+47 900 12 345 · fryd@gmail.com",website:null,address:"Oslo",
    scores:{betalingsevne:4,pain:5,verdi:5,kontakt:5,beslutning:5,fit:4},
    analysis:"Ingen nettside, aktiv på Instagram med 2 300 følgere. Eier svarer raskt på DM. Estimert verdi: 8–15k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false},
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false},
   {name:"Barbershop Kings",type:"barbershop",contact:"+47 412 67 890",website:"http://barbershopkings.no",address:"Oslo",
    scores:{betalingsevne:4,pain:4,verdi:4,kontakt:3,beslutning:4,fit:3},
    analysis:"Nettside fra 2013, ikke mobiloptimalisert. Estimert verdi: 6–10k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false},
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false},
   {name:"Nagelstudio Lykke",type:"neglesalong",contact:"lykke.negler@outlook.com",website:null,address:"Oslo",
    scores:{betalingsevne:3,pain:5,verdi:4,kontakt:4,beslutning:5,fit:5},
    analysis:"Aktiv på Facebook, ingen nettside. Estimert verdi: 7–12k kr.",
-   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false},
+   contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false},
   {name:"Restaurant Solberg",type:"restaurant",contact:"+47 223 45 678",website:"http://solbergmat.no",address:"Oslo",
    scores:{betalingsevne:4,pain:3,verdi:3,kontakt:2,beslutning:3,fit:2},
    analysis:"Utdatert nettside. Estimert verdi: 8–14k kr.",
@@ -326,7 +330,7 @@ document.getElementById('search-input').addEventListener('keydown',e=>{
 });
 
 function addResultToLeads(idx){
-  const r={...searchResults[idx],isResult:false,added:false};
+  const r={...searchResults[idx],isResult:false,added:false,nei:false};
   leads.push(r);
   searchResults[idx].added=true;
   render();
@@ -442,7 +446,10 @@ function renderCard(lead,i,isResult,resultIdx){
     let dealHTML='';
     if(lead.dealKr>0)dealHTML=`<div class="deal-section"><span class="deal-logged-tag">deal landet: ${lead.dealKr.toLocaleString('nb-NO')} kr</span></div>`;
     else if(lead.dealOpen)dealHTML=`<div class="deal-section"><div class="deal-input-row"><input class="deal-input" id="deal-input-${i}" type="number" placeholder="f.eks. 10000" min="1"/><button class="deal-confirm-btn" onclick="confirmDeal(${i})">logg</button></div></div>`;
-    else dealHTML=`<div class="deal-section"><button class="deal-open-btn" onclick="openDealInput(${i})">logg deal som landet</button></div>`;
+    else dealHTML=`<div class="deal-section" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="deal-open-btn" style="margin-top:0;" onclick="openDealInput(${i})">logg deal som landet</button>
+      ${lead.nei?'<span class="nei-tag">sa nei</span>':`<button class="nei-btn" onclick="markNei(${i})">sa nei</button>`}
+    </div>`;
     actionHTML=dealHTML;
   }
 
@@ -485,7 +492,10 @@ function render(){
     if(searchResults.length===0){
       list.innerHTML='<div style="font-size:13px;color:#7aaa80;padding:12px 0;">Søk etter bedrifter ovenfor.</div>';
     } else {
-      searchResults.forEach((r,idx)=>list.appendChild(renderCard(r,null,true,idx)));
+      searchResults.filter(r=>!r.nei).forEach((r,idx)=>{
+        const realIdx=searchResults.indexOf(r);
+        list.appendChild(renderCard(r,null,true,realIdx));
+      });
     }
   } else {
     const sorted=[...leads].sort((a,b)=>totalScore(b)-totalScore(a));
@@ -494,6 +504,19 @@ function render(){
       if(currentTab==='deals')return l.dealKr>0;
       return true;
     });
+    if(currentTab==='nei'){
+      const neiLeads=leads.filter(l=>l.nei);
+      if(neiLeads.length===0){
+        list.innerHTML='<div style="font-size:13px;color:#7aaa80;padding:12px 0;">Ingen som har sagt nei ennå.</div>';
+      } else {
+        neiLeads.forEach(lead=>{
+          const i=leads.indexOf(lead);
+          list.appendChild(renderCard(lead,i,false,null));
+        });
+      }
+      updateWorld();
+      return;
+    }
     if(filtered.length===0){
       list.innerHTML='<div style="font-size:13px;color:#7aaa80;padding:12px 0;">Ingen leads her ennå.</div>';
     } else {
@@ -508,6 +531,7 @@ function render(){
 
 function toggleResultOpen(i){searchResults[i].open=!searchResults[i].open;render();}
 function deleteLead(i){leads.splice(i,1);render();}
+function markNei(i){leads[i].nei=!leads[i].nei;leads[i].contacted=true;render();}
 function toggleContacted(i){leads[i].contacted=!leads[i].contacted;render();}
 function toggleOpen(i){leads[i].open=!leads[i].open;render();}
 
@@ -516,7 +540,7 @@ function addLead(){
   if(!name)return;
   leads.push({name,type:'bedrift',contact:'',website:null,address:'',
     scores:{betalingsevne:3,pain:3,verdi:3,kontakt:3,beslutning:3,fit:3},
-    analysis:'Analyser og legg til notater her.',contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false});
+    analysis:'Analyser og legg til notater her.',contacted:false,dealKr:0,dealOpen:false,open:false,isResult:false,nei:false});
   input.value='';render();
 }
 
