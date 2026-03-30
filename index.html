@@ -284,32 +284,30 @@ async function searchPlaces(){
     const res=await fetch(`/api/places?query=${encodeURIComponent(query)}`);
     const data=await res.json();
     if(data.places&&data.places.length>0){
-      searchResults=data.places.map(place=>({
-        name:place.displayName.text,
-        type:query.split(' ')[0],
-        contact:'',
-        website:place.websiteUri||null,
-        address:place.formatted_address||'',
-        scores:{betalingsevne:0,pain:0,verdi:0,kontakt:0,beslutning:0,fit:0},
-        analysis:`Google-rating: ${place.rating||'ukjent'}/5 (${place.userRatingCount||0} anmeldelser). ${place.websiteUri?'Har nettside – vurder redesign.':'Ingen nettside funnet – perfekt kandidat.'}`,
-        contacted:false,dealKr:0,dealOpen:false,open:false,isResult:true,added:false,
-        placeId:place.place_id
-      }));
-      searchResults.forEach(r=>{
-        const w=r.website;
-        const hasNoSite=!w;
-        const isInstagram=w&&(w.includes('instagram.com')||w.includes('facebook.com'));
-        const rating=r.rating||3;
-        const reviews=r.userRatingCount||0;
-        const name=(r.name||'').toLowerCase();
-        const frisørTypes=['frisør','hair','barber','negl','nail','beauty','salong','lash','brow','spa'];
-        r.scores={
-          betalingsevne:rating>=4.8&&reviews>200?5:rating>=4.5&&reviews>100?4:rating>=4?3:2,
-          pain:hasNoSite?5:isInstagram?4:2,
-          verdi:hasNoSite?5:isInstagram?4:2,
-          kontakt:reviews>200?4:reviews>50?3:reviews>10?2:1,
-          beslutning:reviews<50?5:reviews<200?4:3,
-          fit:frisørTypes.some(t=>name.includes(t))?4:3
+      searchResults=data.places.map(place=>{
+        const w=place.websiteUri||null;
+        const noSite=!w;
+        const igSite=w&&(w.includes('instagram')||w.includes('facebook'));
+        const r=place.rating||3;
+        const rev=place.userRatingCount||0;
+        const n=(place.displayName&&place.displayName.text||'').toLowerCase();
+        const isSalong=['frisør','hair','barber','negl','nail','beauty','salong','lash','brow','spa'].some(t=>n.includes(t));
+        return {
+          name:place.displayName.text,
+          type:query.split(' ')[0],
+          contact:'',
+          website:w,
+          address:place.formattedAddress||'',
+          scores:{
+            betalingsevne:r>=4.8&&rev>200?5:r>=4.5&&rev>100?4:r>=4?3:2,
+            pain:noSite?5:igSite?4:2,
+            verdi:noSite?5:igSite?4:2,
+            kontakt:rev>200?4:rev>50?3:rev>10?2:1,
+            beslutning:rev<50?5:rev<200?4:3,
+            fit:isSalong?4:3
+          },
+          analysis:`Google-rating: ${r}/5 (${rev} anmeldelser). ${w?'Har nettside – vurder redesign.':'Ingen nettside – perfekt kandidat.'}`,
+          contacted:false,dealKr:0,dealOpen:false,open:false,isResult:true,added:false
         };
       });
       status.textContent=`${searchResults.length} bedrifter funnet`;
