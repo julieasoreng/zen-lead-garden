@@ -448,7 +448,10 @@ function renderCard(lead,i,isResult,resultIdx){
       </div>
     </div>
     ${actionHTML}
-    <button class="expand-btn" ${toggleFn}>${openState?'▲ skjul analyse':'▼ vis analyse'}</button>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+      <button class="expand-btn" style="margin-top:0;" ${toggleFn}>${openState?'▲ skjul analyse':'▼ vis analyse'}</button>
+      ${!isResult?`<button class="delete-btn" style="margin-top:0;" onclick="deleteLead(${i})">fjern lead</button>`:''}
+    </div>
     ${openState?`<div class="analysis-block"><div class="score-grid">${grid}</div><div class="analysis-text">${lead.analysis}</div></div>`:''}
   `;
   return card;
