@@ -1,4 +1,4 @@
-export default async (request, context) => {
+export default async (request) => {
   const url = new URL(request.url);
   const query = url.searchParams.get("query");
 
@@ -9,7 +9,14 @@ export default async (request, context) => {
     });
   }
 
-  const apiKey = context.env.GOOGLE_PLACES_KEY;
+  const apiKey = Deno.env.get("GOOGLE_PLACES_KEY");
+
+  if (!apiKey) {
+    return new Response(JSON.stringify({ error: "Ingen API-nøkkel funnet", env: Object.keys(Deno.env.toObject()) }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
 
   const response = await fetch("https://places.googleapis.com/v1/places:searchText", {
     method: "POST",
